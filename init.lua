@@ -1,25 +1,5 @@
 --[[
 
-=====================================================================
-==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
-========                                    .-----.          ========
-========         .----------------------.   | === |          ========
-========         |.-""""""""""""""""""-.|   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||   KICKSTART.NVIM   ||   |-----|          ========
-========         ||                    ||   | === |          ========
-========         ||                    ||   |-----|          ========
-========         ||:Tutor              ||   |:::::|          ========
-========         |'-..................-'|   |____o|          ========
-========         `"")----------------(""`   ___________      ========
-========        /::::::::::|  |::::::::::\  \ no mouse \     ========
-========       /:::========|  |==hjkl==:::\  \ required \    ========
-========      '""""""""""""'  '""""""""""""'  '""""""""""'   ========
-========                                                     ========
-=====================================================================
-=====================================================================
-
 What is Kickstart?
 
   Kickstart.nvim is *not* a distribution.
@@ -41,27 +21,9 @@ What is Kickstart?
     - :help lua-guide
     - (or HTML version): https://neovim.io/doc/user/lua-guide.html
 
-Kickstart Guide:
-
-  TODO: The very first thing you should do is to run the command `:Tutor` in Neovim.
-
-    If you don't know what this means, type the following:
-      - <escape key>
-      - :
-      - Tutor
-      - <enter key>
-
-    (If you already know the Neovim basics, you can skip this step.)
-
-  Once you've completed that, you can continue working through **AND READING** the rest
-  of the kickstart init.lua.
-
   Next, run AND READ `:help`.
     This will open up a help window with some basic information
     about reading, navigating and searching the builtin help documentation.
-
-    This should be the first place you go to look when you're stuck or confused
-    with something. It's one of my favorite Neovim features.
 
     MOST IMPORTANTLY, we provide a keymap "<space>sh" to [s]earch the [h]elp documentation,
     which is very useful when you're not exactly sure of what you're looking for.
@@ -70,18 +32,6 @@ Kickstart Guide:
     These are hints about where to find more information about the relevant settings,
     plugins or Neovim features used in Kickstart.
 
-   NOTE: Look for lines like this
-
-    Throughout the file. These are for you, the reader, to help you understand what is happening.
-    Feel free to delete them once you know what you're doing, but they should serve as a guide
-    for when you are first encountering a few different constructs in your Neovim config.
-
-If you experience any errors while trying to install kickstart, run `:checkhealth` for more info.
-
-I hope you enjoy your Neovim journey,
-- TJ
-
-P.S. You can delete this when you're done too. It's your config now! :)
 --]]
 
 -- Set <space> as the leader key
@@ -100,8 +50,8 @@ vim.g.have_nerd_font = true
 
 -- Make line numbers default
 vim.opt.number = true
--- You can also add relative line numbers, to help with jumping.
---  Experiment for yourself to see if you like it!
+--
+-- Enable line numbers, to help with jumping.
 vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
@@ -174,12 +124,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -330,9 +274,15 @@ require('lazy').setup({
     config = function()
       require('oil').setup {
         default_file_explorer = true,
+        view_options = {
+          show_hidden = true,
+        },
       }
 
       vim.keymap.set('n', '-', '<CMD>Oil<CR>', { desc = 'Open parent directory' })
+      -- Keeps consistent with vim defaults
+      vim.keymap.set('n', '<C-w><C-s>', '<CMD>Oil<C-s>', { desc = 'Horizontal split' })
+      vim.keymap.set('n', '<C-w><C-v>', '<CMD>Oil<C-v>', { desc = 'Vertical split' })
     end,
   },
   -- NOTE: Plugins can specify dependencies.
@@ -392,11 +342,11 @@ require('lazy').setup({
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            n = { ['<c-d>'] = 'delete_buffer' },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -421,7 +371,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
-
+      --
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
         -- You can pass additional configuration to Telescope to change the theme, layout, etc.
@@ -617,10 +567,35 @@ require('lazy').setup({
       local servers = {
         -- clangd = {},
         gopls = {},
+        mdx_analyzer = {},
         jsonls = {},
-        vacuum = {},
-        ts_ls = {},
         eslint = {},
+        yamlls = {},
+        emmet_ls = {
+          capabilities = capabilities,
+          filetypes = { 'css', 'eruby', 'html', 'javascript', 'javascriptreact', 'less', 'sass', 'scss', 'svelte', 'pug', 'typescriptreact', 'vue' },
+          init_options = {
+            html = {
+              options = {
+                -- For possible options, see: https://github.com/emmetio/emmet/blob/master/src/config.ts#L79-L267
+                ['bem.enabled'] = true,
+              },
+            },
+          },
+        },
+        spectral = {},
+        tailwindcss = {
+          settings = {
+            tailwindCSS = {
+              experimental = {
+                classRegex = {
+                  { '(["\'`][^"\'`]*.*?["\'`])', '["\'`]([^"\'`]*).*?["\'`]' },
+                },
+              },
+              classAttributes = { 'class', 'cn', 'cva', 'tv', 'className', 'class:list', 'classList', 'ngClass' },
+            },
+          },
+        },
         -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -660,7 +635,9 @@ require('lazy').setup({
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
-        'stylua', -- Used to format Lua code
+        'stylua', -- Used to format Lua codem
+        'prettierd',
+        'sqlfluff',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -672,13 +649,40 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+            if server_name == 'yamlls' then
+              server.settings = {
+                yaml = {
+                  schemas = {
+                    ['https://json.schemastore.org/github-workflow.json'] = '/.github/workflows/*',
+                    ['https://github.com/OAI/OpenAPI-Specification/blob/main/schemas/v3.1/schema.yaml'] = '*.yaml',
+                  },
+
+                  validate = true,
+                  completion = true,
+                },
+              }
+            end
+
+            if server_name == 'mdx_analyzer' then
+              server.filetypes = { 'mdx' }
+            end
+
             require('lspconfig')[server_name].setup(server)
           end,
         },
       }
     end,
   },
-
+  {
+    'davidmh/mdx.nvim',
+    config = true,
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
+  },
+  {
+    'pmizio/typescript-tools.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim', 'neovim/nvim-lspconfig' },
+    opts = {},
+  },
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -693,6 +697,9 @@ require('lazy').setup({
         desc = '[F]ormat buffer',
       },
     },
+    config = function(_, opts)
+      require('conform').setup(opts)
+    end,
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
@@ -707,21 +714,30 @@ require('lazy').setup({
           lsp_format_opt = 'fallback'
         end
         return {
-          timeout_ms = 500,
+          timeout_ms = 10000,
           lsp_format = lsp_format_opt,
         }
       end,
       formatters_by_ft = {
         lua = { 'stylua' },
+        sql = { 'sqlfluff' },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        html = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'prettierd', 'prettier', stop_after_first = true },
+        yaml = { 'prettierd', 'prettier', stop_after_first = true },
+        markdown = { 'prettierd', 'prettier', stop_after_first = true },
+        mdx = { 'prettierd', 'prettier', stop_after_first = true },
+        graphql = { 'prettierd', 'prettier', stop_after_first = true },
+        --     handlebars = "glimmer",
         -- Conform can also run multiple formatters sequentially
         -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
       },
     },
   },
-
   { -- Autocompletion
     'hrsh7th/nvim-cmp',
     event = 'InsertEnter',
@@ -904,7 +920,7 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = { 'ruby', 'markdown' },
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
@@ -915,7 +931,21 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
-
+  {
+    'windwp/nvim-ts-autotag',
+    config = function()
+      require('nvim-ts-autotag').setup {
+        opts = {
+          enable_close = true,
+          enable_rename = true,
+          enable_close_on_slash = true,
+        },
+      }
+    end,
+  },
+  {
+    'mg979/vim-visual-multi',
+  },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -927,7 +957,7 @@ require('lazy').setup({
   --
   -- require 'kickstart.plugins.debug',
   -- require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   -- require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
@@ -961,4 +991,4 @@ require('lazy').setup({
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+--vim: ts=2 sts=2 sw=2 et

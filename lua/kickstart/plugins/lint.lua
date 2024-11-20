@@ -7,6 +7,14 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        -- yaml = { 'spectral' },
+        sql = { 'sqlfluff' },
+      }
+
+      require('lint').linters.sqlfluff.args = {
+        'lint',
+        '--format=json',
+        '--dialect=postgres',
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
