@@ -18,12 +18,35 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        go = { 'golangcilint' },
       }
+      -- Override golangcilint args: the default getArgs() runs `go env GOMOD` once
+      -- at load time. In a go.work workspace, this returns /dev/null (no go.mod at
+      -- the root), causing it to lint single files instead of directories. We force
+      -- the directory (:h) so cross-file symbols resolve correctly.
+      local gc = lint.linters.golangcilint
+      local default_args = gc.args or {}
+      gc.args = {}
+      for i, arg in ipairs(default_args) do
+        if type(arg) == 'function' and i == #default_args then
+          -- Replace the filename function with one that always passes the directory
+          table.insert(gc.args, function()
+            return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ':h')
+          end)
+        else
+          table.insert(gc.args, arg)
+        end
+      end
       vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'InsertLeave' }, {
         group = vim.api.nvim_create_augroup('lint', { clear = true }),
         callback = function()
           if vim.opt_local.modifiable:get() then
-            lint.try_lint()
+            local opts = {}
+            local gomod = vim.fs.root(0, 'go.mod')
+            if gomod then
+              opts.cwd = gomod
+            end
+            lint.try_lint(nil, opts)
           end
         end,
       })
