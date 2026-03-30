@@ -47,6 +47,14 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('treesitter-highlight', { clear = true }),
+  pattern = { '*' },
+  callback = function()
+    pcall(vim.treesitter.start)
+  end,
+})
+
 -- [[ Lazy bootstrap ]]
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not (vim.uv or vim.loop).fs_stat(lazypath) then

@@ -84,30 +84,13 @@ return {
 
   {
     'nvim-treesitter/nvim-treesitter',
+    lazy = false,
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs',
-    opts = {
-      ensure_installed = {
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'query',
-        'vim',
-        'vimdoc',
-      },
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Ruby and markdown rely on vim regex for indent rules
-        additional_vim_regex_highlighting = { 'ruby', 'markdown' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
+    config = function()
+      require('nvim-treesitter').setup {
+        install_dir = vim.fn.stdpath 'data' .. '/site',
+      }
+    end,
   },
 
   {
