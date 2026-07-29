@@ -4,8 +4,14 @@ return {
     name = 'catppuccin',
     priority = 1000,
     init = function()
-      vim.cmd.colorscheme 'catppuccin-mocha'
+      vim.cmd.colorscheme 'catppuccin-nvim'
     end,
+    opt = {
+      background = {
+        light = 'latte',
+        dark = 'mocha',
+      },
+    },
   },
 
   {

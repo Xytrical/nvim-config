@@ -87,9 +87,27 @@ return {
     lazy = false,
     build = ':TSUpdate',
     config = function()
-      require('nvim-treesitter').setup {
-        install_dir = vim.fn.stdpath 'data' .. '/site',
-      }
+      require('nvim-treesitter')
+        .install({
+          'bash',
+          'c',
+          'go',
+          'html',
+          'javascript',
+          'typescript',
+          'tsx',
+          'lua',
+          'markdown',
+          'markdown_inline',
+          'query',
+          'vim',
+          'vimdoc',
+          'json',
+          'yaml',
+          'css',
+          'sql',
+        })
+        :wait(300000)
     end,
   },
 

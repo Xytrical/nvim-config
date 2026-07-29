@@ -70,7 +70,8 @@ return {
     opts = {
       notify_on_error = false,
       format_on_save = function(bufnr)
-        local disable_filetypes = { c = true, cpp = true }
+        -- local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = {}
         if disable_filetypes[vim.bo[bufnr].filetype] then
           return nil
         end
@@ -177,6 +178,13 @@ return {
       local servers = {
         buf_ls = {},
         gopls = {},
+        clangd = {
+          cmd = {
+            'clangd',
+            '--query-driver=' .. vim.fn.expand '~' .. '/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-*',
+            '--background-index',
+          },
+        },
         sqruff = {},
         biome = {
           settings = { single_file_support = false },
@@ -222,6 +230,7 @@ return {
             },
           },
         },
+        terraformls = {},
         tailwindcss = {
           settings = {
             tailwindCSS = {
